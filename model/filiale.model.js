@@ -6,13 +6,20 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER
         },
         libFiliale: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         sigle:{
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         idDevise: {
-            type: DataTypes.INTEGER
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        idLangue:{
+            type: DataTypes.INTEGER,
+            allowNull: false
         }
     })
     return filiale

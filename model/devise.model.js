@@ -6,10 +6,12 @@ module.exports = (sequelize,DataTypes) =>{
             type: DataTypes.INTEGER
         },
         libDevise: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         value: {
-            type: DataTypes.FLOAT
+            type: DataTypes.FLOAT,
+            allowNull: false
         }
     })
     return devise

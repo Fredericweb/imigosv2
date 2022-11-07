@@ -6,18 +6,29 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER
         },
         libPart: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         partIMI: {
-            type: DataTypes.FLOAT
+            type: DataTypes.FLOAT,
+            allowNull: false
         },
         partGOS: {
-            type: DataTypes.FLOAT
+            type: DataTypes.FLOAT,
+            allowNull: false
         },
         partFiliale: {
-            type: DataTypes.FLOAT
+            type: DataTypes.FLOAT,
+            allowNull: false
+        },
+        idFiliale: {
+            type:DataTypes.INTEGER,
+            allowNull: false
+        },
+        idTypeFact: {
+            type:DataTypes.INTEGER,
+            allowNull:false
         }
-
     })
     return part
 }

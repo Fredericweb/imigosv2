@@ -49,9 +49,6 @@ module.exports = (sequelize, DataTypes) =>{
         PRODUCT:{
             type: DataTypes.STRING
         }, 
-        createdAt:{
-            type: DataTypes.DATE
-        }
 
     },{timestamps: false,})
     return inventaire

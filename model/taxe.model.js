@@ -6,10 +6,16 @@ module.exports = (sequelize,  DataTypes) =>{
             type: DataTypes.INTEGER
         },
         libTaxe: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         value: {
-            type: DataTypes.FLOAT
+            type: DataTypes.FLOAT,
+            allowNull: false
+        },
+        idFiliale:{
+            type:DataTypes.INTEGER,
+            allowNull:false
         }
     })
     return taxe

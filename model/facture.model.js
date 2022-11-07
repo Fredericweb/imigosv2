@@ -6,7 +6,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER
         },
         periode: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        idFiliale: {
+            type:DataTypes.INTEGER,
+            allowNull: false
+        },
+        idTypeFact: {
+            type:DataTypes.INTEGER,
+            allowNull: false,
         }
     })
     return facture

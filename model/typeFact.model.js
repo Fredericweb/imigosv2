@@ -6,7 +6,8 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.INTEGER
         },
         libTypeFact: {
-            type:DataTypes.STRING
+            type:DataTypes.STRING,
+            allowNull: false
         }
     })
     return typeFact

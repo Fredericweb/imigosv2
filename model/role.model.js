@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) =>{
         },
         libRole: {
             type: DataTypes.STRING,
+            allowNull: false
         }
     })
     return role
