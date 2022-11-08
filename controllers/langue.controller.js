@@ -5,10 +5,11 @@ const langue = Db.langue
 const add = async (req, res) => {
     try {
         const addLangue = await langue.create({ ...req.body })
-        res.status(200).send(addLangue)
+        res.status(200).send({message: 'Informations enregistrées'})
+        console.log({message: 'Informations enregistrées'},addLangue)
     } catch (err) {
-        res.status(201).send('erreur')
-        console.log(err)
+        res.status(201).send({message: err.errors[0].message})
+        console.log({message: err.errors[0].message},err)
     }
 }
 
@@ -19,7 +20,7 @@ const all = async (req, res) => {
         })
         res.status(200).send(allLangue)
     } catch (err) {
-        res.status(201).send('err')
+        res.status(201).send({message:"Une erreur s'est produite" })
     }
 }
 
@@ -37,9 +38,9 @@ const update = async (req, res) => {
                     where: {idLangue: req.params.id}
                 }
             )
-            res.status(200).send({message: 'modification enregistée'})
+            res.status(200).send({message: 'modifications effectuées'})
         }catch(err){
-            res.status(201).send({message: "erreur"})
+            res.status(201).send({message: err.errors[0].message})
         }
     }
 }
