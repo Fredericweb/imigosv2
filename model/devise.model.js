@@ -7,11 +7,33 @@ module.exports = (sequelize,DataTypes) =>{
         },
         libDevise: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true,
+            validate: {
+                notEmpty: {
+                    args: true,
+                    msg:'Le champs libellé devise ne doit pas être vide'
+                },
+                is:{
+                    args: ["^[a-z]+$",'i'],
+                    msg : 'Le libellé de la devise doit être une chaîne de caractère'
+                }
+            }
         },
         value: {
             type: DataTypes.FLOAT,
-            allowNull: false
+            allowNull: false,
+            validate:{
+                notEmpty: {
+                    args: true,
+                    msg:'Le champs valeur devise ne doit pas être vide'
+                },
+                isFloat: {
+                    args: true,
+                    msg:'La valeur de la devise doit être un entier'
+                }
+            }
+           
         }
     })
     return devise

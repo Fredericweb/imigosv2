@@ -15,15 +15,17 @@ const signUp = async (req, res) => {
         // verification du login utilisateur
         const verifLogin = await users.findOne({ where: { login: req.body.login } })
         if (verifLogin) {
-            res.json({ message: 'Le nom login existe déjà !!' })
+            res.json({ message: 'Le login existe déjà !!' })
+            console.log({ message: 'Le login existe déjà !!' })
         } else {
             const user = await users.create({ ...req.body });
-            res.status(200).send(user)
+            res.status(200).json({message:'Informations enregistrées'})
+            console.log({message:'Informations enregistrées'},user)
         }
 
     } catch (err) {
-        res.status(404).send({ err })
-        console.log('erreur: ', err)
+        res.status(404).json({message:err.errors[0].message})
+        console.log({message:err.errors[0].message})
     }
 
 }
@@ -35,7 +37,7 @@ const signIn = async (req, res) => {
     if (!verifUserInfo)
         return res.json({ message: 'Login ou mot de passe incorrect' })
     if (!verifUserInfo.authenticate(password))
-        return res.json({ message: 'Login ou mot de passe incorrect (mdp)' })
+        return res.json({ message: 'Login ou mot de passe incorrect' })
     const token = jwt.sign(
         { id: verifUserInfo.id },
         process.env.JWT_SECRET,
@@ -54,25 +56,28 @@ const all = async (req, res) => {
         const allUser = await users.findAll({
             attributes: ['id', 'nom', 'prenom', 'login', 'contact', 'profil', 'email', 'idRole']
         })
-        res.status(200).send(allUser)
+        res.status(200).json(allUser)
     } catch (err) {
-        res.status(404).send('erreur')
-        console.log(err)
+        res.status(404).json({message:"une erreur s'est produite"})
+        console.log({message:"une erreur s'est produite"},err)
     }
 }
 const userInfo = async (req, res) => {
     const info = await users.findByPk(req.params.id)
     if (info === null) {
-        res.status(200).send("utilisateur introuvable")
+        res.status(200).json({message:"utilisateur introuvable"})
+        console.log({message:"utilisateur introuvable"})
     } else {
-        res.status(201).send(info)
+        res.status(201).json(info)
+        console.log(info)
     }
 }
 const update = async (req, res) => {
     const verifId = await users.findByPk(req.params.id)
-    const { nom, prenom, login, role, password, email, contact, profil } = req.body
+    const { nom, prenom, login, idRole, password, email, contact, profil } = req.body
     if (verifId === null) {
         res.json({ message: 'Utilisateur introuvable' })
+        console.log({ message: 'Utilisateur introuvable' })
     } else {
         try {
             const userUpdate = await users.update(
@@ -80,7 +85,7 @@ const update = async (req, res) => {
                     nom: nom,
                     prenom: prenom,
                     login: login,
-                    role: role,
+                    idRole: idRole,
                     password: password,
                     email: email,
                     contact: contact,
@@ -91,8 +96,10 @@ const update = async (req, res) => {
                 }
             )
             res.json({ message: 'modification effectuée' })
+            console.log({ message: 'modification effectuée' })
         } catch (err) {
-            res.json({ message: "Une erreur s'est produite veuillez réessayer" })
+            res.json({message:err.errors[0].message} )
+            console.log({message:err.errors[0].message})
         }
     }
 
