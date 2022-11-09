@@ -7,7 +7,18 @@ module.exports = (sequelize, DataTypes) =>{
         },
         libRole: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true,
+            validate: {
+                notEmpty: {
+                    args: true,
+                    msg: 'Le champs libellé type facture ne doit pas être vide'
+                },
+                is: {
+                    args: [/^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ._-\s]{5,60}$/],
+                    msg: 'Le libellé type facture doit être un chaîne de caractère'
+                }
+            }
         }
     })
     return role

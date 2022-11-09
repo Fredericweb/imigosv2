@@ -3,44 +3,53 @@ const Db = require('../config/Db')
 const typeFact = Db.typeFact
 
 const all = async (req, res) => {
-    try{
+    try {
         const allTypeFact = await typeFact.findAll({
             attributes: ['idTypeFact', 'libTypeFact']
         })
-        res.status(200).send(allTypeFact)
-    }catch(err){
-        res.status(201).send('err')
-        console.log(err)
+        res.status(200).json(allTypeFact)
+    } catch (err) {
+        res.status(201).json({ message: "une erreur s'est produite" })
+        console.log({ message: "une erreur s'est produite" }, err)
     }
 }
 
 const add = async (req, res) => {
-    try{
-        const addTypeFact = await typeFact.create({...req.body})
-        res.status(200).send(addTypeFact)
-    }catch(err){
-        res.status(201).send({message: "erreur"})
+    try {
+        const verifTypeFact = await typeFact.findOne({ where: { libTypeFact: req.body.libTypeFact } })
+        if (verifTypeFact) {
+            res.json({ message: 'Le type facture existe déjà !!' })
+            console.log({ message: 'Le type facture existe déjà !!' })
+        } else {
+            const addTypeFact = await typeFact.create({ ...req.body })
+            res.status(200).json(addTypeFact)
+        }
+
+    } catch (err) {
+        res.status(201).json({ message: err.errors[0].message })
+        console.log({ message: err.errors[0].message }, err)
     }
 }
-const update = async (req, res)=>{
+const update = async (req, res) => {
     const info = await typeFact.findByPk(req.params.id)
     if (info === null) {
-        res.status(200).send("ID incorrect")
+        res.status(200).json({message: 'Id incorrect'})
     } else {
-        try{
+        try {
             const typeFactUpdate = await typeFact.update(
                 {
                     libTypeFact: req.body.libTypeFact
                 },
                 {
-                    where: {idTypeFact: req.params.id}
+                    where: { idTypeFact: req.params.id }
                 }
             )
-            res.status(200).send({message: 'modification enregistée'})
-        }catch(err){
-            res.status(201).send({message: "erreur"})
+            res.status(200).json({ message: 'Modification effectuées' })
+        } catch (err) {
+            res.status(201).json({ message: err.errors[0].message })
+            console.log({ message: err.errors[0].message }, err)
         }
     }
 }
 
-module.exports = {all, add, update}
+module.exports = { all, add, update }
