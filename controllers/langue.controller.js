@@ -44,4 +44,21 @@ const update = async (req, res) => {
         }
     }
 }
-module.exports = { add, all, update }
+
+const remove = async (req, res) => {
+    const verifId  = await langue.findByPk(req.params.id)
+    if(verifId == null){
+        res.json({message: "La langue est introuvable"})
+    }else{
+        try{
+            const removeLangue = await langue.destroy({
+                where: {idLangue: req.params.id}
+            })
+            res.json({message: "Langue supprimée"})
+        } catch (err){
+            res.json({message: "Une erreur s'est produite"})
+            console.log(err)
+        }
+    }
+}
+module.exports = { add, all, update,remove }

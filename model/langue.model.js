@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
                     msg: 'Le champs langue ne doit pas être vide '
                 },
                 is: {
-                    args: ["^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ]+$",'i'],
+                    args: [/^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ._-\s]{5,60}$/],
                     msg: 'la langue doit être une chaîne de caractère'
                 }
             }

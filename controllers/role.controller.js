@@ -53,4 +53,20 @@ const update = async (req, res) => {
         }
     }
 }
-module.exports = { add, all, update }
+const remove = async (req, res) => {
+    const verifId  = await role.findByPk(req.params.id)
+    if(verifId == null){
+        res.json({message: "La role est introuvable"})
+    }else{
+        try{
+            const removeRole = await role.destroy({
+                where: {idRole: req.params.id}
+            })
+            res.json({message: "rôle supprimée"})
+        } catch (err){
+            res.json({message: "Une erreur s'est produite"})
+            console.log(err)
+        }
+    }
+}
+module.exports = { add, all, update , remove}

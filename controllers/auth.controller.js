@@ -19,13 +19,13 @@ const signUp = async (req, res) => {
             console.log({ message: 'Le login existe déjà !!' })
         } else {
             const user = await users.create({ ...req.body });
-            res.status(200).json({message:'Informations enregistrées'})
-            console.log({message:'Informations enregistrées'},user)
+            res.status(200).json({ message: 'Informations enregistrées' })
+            console.log({ message: 'Informations enregistrées' }, user)
         }
 
     } catch (err) {
-        res.status(404).json({message:err.errors[0].message})
-        console.log({message:err.errors[0].message})
+        res.status(404).json({ message: err.errors[0].message })
+        console.log({ message: err.errors[0].message })
     }
 
 }
@@ -58,15 +58,15 @@ const all = async (req, res) => {
         })
         res.status(200).json(allUser)
     } catch (err) {
-        res.status(404).json({message:"une erreur s'est produite"})
-        console.log({message:"une erreur s'est produite"},err)
+        res.status(404).json({ message: "une erreur s'est produite" })
+        console.log({ message: "une erreur s'est produite" }, err)
     }
 }
 const userInfo = async (req, res) => {
     const info = await users.findByPk(req.params.id)
     if (info === null) {
-        res.status(200).json({message:"utilisateur introuvable"})
-        console.log({message:"utilisateur introuvable"})
+        res.status(200).json({ message: "utilisateur introuvable" })
+        console.log({ message: "utilisateur introuvable" })
     } else {
         res.status(201).json(info)
         console.log(info)
@@ -82,14 +82,7 @@ const update = async (req, res) => {
         try {
             const userUpdate = await users.update(
                 {
-                    nom: nom,
-                    prenom: prenom,
-                    login: login,
-                    idRole: idRole,
-                    password: password,
-                    email: email,
-                    contact: contact,
-                    profil: profil
+                    ...req.body
                 },
                 {
                     where: { id: req.params.id }
@@ -98,8 +91,8 @@ const update = async (req, res) => {
             res.json({ message: 'modification effectuée' })
             console.log({ message: 'modification effectuée' })
         } catch (err) {
-            res.json({message:err.errors[0].message} )
-            console.log({message:err.errors[0].message})
+            res.json({ message: err.errors[0].message })
+            console.log({ message: err.errors[0].message })
         }
     }
 
@@ -109,5 +102,21 @@ const logout = (req, res) => {
     res.cookie('jwt', '', { maxAge: 1 });
     res.redirect('/');
 }
+const remove = async (req, res) => {
+    const verifId = await users.findByPk(req.params.id)
+    if (verifId === null) {
+        res.json({ message: 'Utilisateur introuvable' })
+        console.log({ message: 'Utilisateur introuvable' })
+    } else {
+        try{
+            const removeUser = await users.destroy({
+                where: { id: req.params.id }
+            })
+            res.json({message: 'Utilisateur supprimé'})
+        } catch(err){
+            res.json({message: "Une erreur s'est produite"})
+        }
+    }
+}
 
-module.exports = { signUp, all, userInfo, update, signIn, logout }
+module.exports = { signUp, all, userInfo, update, signIn, logout, remove }

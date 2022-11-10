@@ -10,7 +10,7 @@ const add = async (req, res) => {
             console.log({ message: 'Le filiale existe déjà !!' })
         } else {
             const addFiliale = await filiale.create({ ...req.body })
-            res.status(200).json({message: "informations enregistrées"},addFiliale)
+            res.json({message: "informations enregistrées"})
         }
        
     } catch (err) {
@@ -34,7 +34,6 @@ const all = async (req, res) => {
     }
 
 }
-
 const update = async (req, res) => {
     const { libFiliale, sigle, idDevise, idLangue } = req.body
     const info = await filiale.findByPk(req.params.id)
@@ -63,4 +62,20 @@ const update = async (req, res) => {
     }
 
 }
-module.exports = { add, all, update }
+const remove = async (req, res) => {
+    const verifId  = await filiale.findByPk(req.params.id)
+    if(verifId == null){
+        res.json({message : "La filiale est introuvale"})
+    }else{
+        try{
+            const removeFiliale = await filiale.destroy({
+                where: {idFiliale: req.params.id}
+            })
+            res.json({message: "Filiale supprimée"})
+        }catch(err){
+            res.json({message: "une erreur s'est produite"})
+            console.log(err)
+        }
+    }
+}
+module.exports = { add, all, update, remove }

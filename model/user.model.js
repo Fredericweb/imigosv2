@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
           msg: 'Le champs prenom ne doit pas être vide'
         },
         is: {
-          args: ["^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ._-\s]+$",'i'],
+          args: [/^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ._-\s]{5,60}$/],
           msg: 'Le prenom doit être une chaîne de caractère'
         }
       }

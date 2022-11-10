@@ -51,5 +51,21 @@ const update = async (req, res) => {
         }
     }
 }
+const remove = async (req, res) => {
+    const verifId  = await typeFact.findByPk(req.params.id)
+    if(verifId == null){
+        res.json({message: "Le type Facture est introuvable"})
+    }else{
+        try{
+            const removeTypeFact = await typeFact.destroy({
+                where: {idTypeFact: req.params.id}
+            })
+            res.json({message: "Type Facture supprimée"})
+        } catch (err){
+            res.json({message: "Une erreur s'est produite"})
+            console.log(err)
+        }
+    }
+}
 
-module.exports = { all, add, update }
+module.exports = { all, add, update, remove }

@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
                 },
                 isUppercase: {
                     args: true,
-                    msg: 'Le sigle doit être en majuscule'
+                    msg: 'Le sigle doit être en caractère majuscule'
                 }
             }
         },

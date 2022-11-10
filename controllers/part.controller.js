@@ -11,7 +11,6 @@ const all = async (req, res) => {
     }
 
 }
-
 const add = async (req, res) => {
 
     try {
@@ -34,12 +33,7 @@ const update = async (req, res) => {
         try {
             const partUpdate = await part.update(
                 {
-                    libPart: req.body.libPart,
-                    partIMI: req.body.partIMI,
-                    partGOS: req.body.partGOS,
-                    partFiliale: req.Body.partFiliale,
-                    idFiliale: req.body.idFiliale,
-                    idTypeFact: req.body.idTypeFact
+                    ...req.body
                 },
                 {
                     where: { idPart: req.params.id }
@@ -51,5 +45,20 @@ const update = async (req, res) => {
         }
     }
 }
-
-module.exports = { all, add, update }
+const remove = async (req, res) => {
+    const verifId = await part.findByPk(req.params.id)
+    if(verifId == null){
+        res.json({message : "Elémant introuvable"})
+    }else{
+        try{
+            const removePart = await part.destroy({
+                where: {idPart: req.params.id}
+            })
+            res.json({message: "Elément supprimé"})
+        }catch(err){
+            res.json({message: "Une erreur s'est produite"})
+            console.log(err)
+        }
+    }
+}
+module.exports = { all, add, update, remove }
