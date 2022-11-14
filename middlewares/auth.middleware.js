@@ -37,6 +37,7 @@ const requireAuth = (req, res, next) => {
       }
     });
   } else {
+    res.json({msg: "no token"})
     console.log('No token');
   }
 }

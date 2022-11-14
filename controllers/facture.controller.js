@@ -107,9 +107,6 @@ const all = async (req, res) => {
 
         }
 
-
-
-
         res.status(200).send(message)
     } catch (err) {
         res.status(201).send(err)
