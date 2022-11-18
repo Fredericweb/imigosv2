@@ -8,6 +8,7 @@ const part = Db.part
 const taxe = Db.taxe
 const typeFact = Db.typeFact
 const devise = Db.devise
+const update = Db.updateFact
 
 
 const all = async (req, res) => {
@@ -30,10 +31,10 @@ const all = async (req, res) => {
         for (const i of list) {
             // recuperation des differentes dates dans le table inventaire
             const dateInv = await inv.findAll({
-                attributes: ['DATE'],
-                group: ['DATE'],
+                attributes: ['createdAt'],
+                group: ['createdAt'],
             })
-
+            
             // somme des UNITPRICE en fonction de de la date, du pays, et du CP_REMARK
             const cp = ['IMI', 'OP CP']
             for (const f of dateInv) {
@@ -42,7 +43,7 @@ const all = async (req, res) => {
                         where: {
                             [Op.and]: [
                                 { COUNTRY: i },
-                                { DATE: f.DATE },
+                                { createdAt: f.createdAt},
                                 { CP_REMARKS: e }
                             ]
                         }
@@ -97,7 +98,7 @@ const all = async (req, res) => {
 
                     if (sumUniprice != null) {
                         message.push({
-                            filiale: filialeBrut, date: f.DATE, facture:
+                            filiale: filialeBrut, date: f.createdAt, facture:
                                 [{ Type: service, UNITPRICE: sumUniprice, part_IMI: partIMI, part_GOS: partGOS, part_Filiale: partFiliale }]
                         })
                     }

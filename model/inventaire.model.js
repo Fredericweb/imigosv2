@@ -4,6 +4,9 @@ module.exports = (sequelize, DataTypes) =>{
         DATE:{
             type: DataTypes.STRING
         },
+        createdAt:{
+            type: DataTypes.DATEONLY
+        },
         OPERATOR:{
             type: DataTypes.STRING
         },
@@ -11,7 +14,7 @@ module.exports = (sequelize, DataTypes) =>{
             type: DataTypes.STRING
         },
         MOBILENO:{
-            type: DataTypes.BIGINT
+            type: DataTypes.STRING
         },
         PACKNAME:{
             type: DataTypes.STRING

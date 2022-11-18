@@ -16,7 +16,16 @@ module.exports = (sequelize, DataTypes) => {
         idTypeFact: {
             type:DataTypes.INTEGER,
             allowNull: false,
+        },
+        ref: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        idEtat: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         }
+
     })
     return facture
 }

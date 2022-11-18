@@ -23,6 +23,10 @@ const Db = {}
 Db.Sequelize = Sequelize;
 Db.sequelize = sequelize;
 
+ /*------------------------------------------------------------------------------------
+                                INTIALISATION DES MODELS
+  -------------------------------------------------------------------------------------*/
+
 Db.users = require('../model/user.model')(sequelize, DataTypes);
 Db.filiale = require('../model/filiale.model')(sequelize, DataTypes);
 Db.langue = require('../model/langue.model')(sequelize, DataTypes);
@@ -33,12 +37,17 @@ Db.part = require('../model/part.model')(sequelize, DataTypes);
 Db.taxe = require('../model/taxe.model')(sequelize, DataTypes);
 Db.inventaire = require('../model/inventaire.model')(sequelize, DataTypes);
 Db.facture = require('../model/facture.model')(sequelize, DataTypes);
+Db.updateFact = require('../model/updateFact.model')(sequelize, DataTypes);
+Db.etat = require('../model/etatFact.model')(sequelize, DataTypes);
 
 Db.sequelize.sync({ force: false })
   .then(() => {
     console.log('ok')
   })
 
+  /*------------------------------------------------------------------------------------
+                                GESTION DES CLES ETRANGERES 
+  -------------------------------------------------------------------------------------*/
 
 //  connection clé etrangère entre filiale et devise
 Db.role.hasMany(Db.users, {
@@ -128,5 +137,39 @@ Db.facture.belongsTo(Db.typeFact,{
   foreignKey: 'idTypeFact',
   as: 'facture2'
 })
+
+// connection clé etrangère updateFact et facture
+Db.facture.hasMany(Db.updateFact, {
+  foreignKey: 'idFact',
+  as:'facture3'
+})
+Db.updateFact.belongsTo(Db.facture, {
+  foreignKey: 'idFact',
+  as: 'updateFact'
+})
+
+// connection clé etrangère updateFact et user
+Db.users.hasMany(Db.updateFact,{
+  foreignKey: 'id',
+  as: 'user2'
+})
+Db.updateFact.belongsTo(Db.users, {
+  foreignKey : 'id',
+  as:'updateFact2'
+})
+
+// connection clé etrangère etat facture
+Db.etat.hasMany(Db.facture, {
+  foreignKey: 'idEtat',
+  as: 'etat'
+})
+Db.facture.belongsTo(Db.etat, {
+  foreignKey: 'idEtat',
+  as:'facture4'
+})
+
+
+
+
 
 module.exports = Db

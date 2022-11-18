@@ -15,7 +15,7 @@ module.exports = (sequelize,DataTypes) =>{
                     msg:'Le champs libellé devise ne doit pas être vide'
                 },
                 is:{
-                    args: ["^[a-zA-Z]+$",'i'],
+                    args: [/^[a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ._-\s]{5,60}$/],
                     msg : 'Le libellé de la devise doit être une chaîne de caractère'
                 }
             }
