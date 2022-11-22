@@ -163,11 +163,10 @@ Db.etat.hasMany(Db.facture, {
   foreignKey: 'idEtat',
   as: 'etat'
 })
-Db.facture.belongsTo(Db.etat, {
+Db.facture.belongsTo(Db.etat,{
   foreignKey: 'idEtat',
-  as:'facture4'
+  as: 'facture4'
 })
-
 
 
 

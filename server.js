@@ -16,6 +16,7 @@ const partRoutes = require('./routes/part.routes')
 const taxeRoutes = require('./routes/taxe.routes')
 const inventaireRoutes = require('./routes/inventaire.routes')
 const factureRoutes = require('./routes/facture.routes')
+const etatRoutes = require('./routes/etat.routes')
 
 // middleware import
 const { checkUser, requireAuth } = require('./middlewares/auth.middleware')
@@ -53,6 +54,7 @@ app.use('/api/part', partRoutes)
 app.use('/api/taxe', taxeRoutes)
 app.use('/api/inventaire', inventaireRoutes)
 app.use('/api/facture', factureRoutes)
+app.use('/api/etat', etatRoutes)
 
 app.listen(port, () => {
     console.log(`Connecté au port ${port}`)

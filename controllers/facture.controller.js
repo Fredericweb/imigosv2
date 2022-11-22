@@ -10,7 +10,6 @@ const typeFact = Db.typeFact
 const devise = Db.devise
 const update = Db.updateFact
 
-
 const all = async (req, res) => {
     // recuperation de tous les nom de filiale dans une list
     const allFiliale = await filiale.findAll({
@@ -34,24 +33,36 @@ const all = async (req, res) => {
                 attributes: ['createdAt'],
                 group: ['createdAt'],
             })
+
+
+            console.log(dateInv)
             
-            // somme des UNITPRICE en fonction de de la date, du pays, et du CP_REMARK
             const cp = ['IMI', 'OP CP']
             for (const f of dateInv) {
+
+                // recuoeration de la periode
+                let dateBrut = f.createdAt.split('-')
+                let date = new Date()
+                date.setMonth(dateBrut[1]-1)
+                date.setFullYear(dateBrut[0])
+                periode = date.getMonth() + '-' + date.getFullYear() 
+                console.log(periode)
+                
+                // somme des UNITPRICE en fonction de de la date, du pays, et du CP_REMARK
                 for (const e of cp) {
                     const sumUniprice = await inv.sum('UNITPRICE', {
                         where: {
                             [Op.and]: [
                                 { COUNTRY: i },
-                                { createdAt: f.createdAt},
+                                { createdAt: f.createdAt },
                                 { CP_REMARKS: e }
                             ]
                         }
                     })
                     service = e == 'IMI' ? 'Service CMS' : 'Service MIGRES'
-                    filialeBrut = "ORANGE " + i
 
                     // recuperation de l'id de la filiale
+                    filialeBrut = "ORANGE " + i
                     const filialeId = await filiale.findAll({
                         attributes: ['idFiliale'],
                         where: {
@@ -85,20 +96,29 @@ const all = async (req, res) => {
                             ]
                         }
                     })
-                    let partIMI=0
-                    let partGOS=0
-                    let partFiliale=0
+                    // recuperation des elements de la table taxe
+                    const taxeF = await taxe.findAll({
+                        attribues: ['libTaxe', 'value'],
+                        where: {
+                            idFiliale: idfiliale,
+                        }
+                    })
+                    let partIMI = 0
+                    let partGOS = 0
+                    let partFiliale = 0
+                    let filialeTaxe = 0
                     for (const elts of partElt) {
                         partIMI = elts.partIMI
                         partGOS = elts.partGOS
                         partFiliale = elts.partFiliale
                     }
-
-
+                    for (const elts of taxeF) {
+                        filialeTaxe = elts.value
+                    }
 
                     if (sumUniprice != null) {
                         message.push({
-                            filiale: filialeBrut, date: f.createdAt, facture:
+                            filiale: filialeBrut, date: f.createdAt, taxeFiliale: filialeTaxe, facture:
                                 [{ Type: service, UNITPRICE: sumUniprice, part_IMI: partIMI, part_GOS: partGOS, part_Filiale: partFiliale }]
                         })
                     }
