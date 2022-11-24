@@ -21,6 +21,15 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        montant:{
+            type: DataTypes.INTEGER,
+        },
+        newMontant: {
+            type: DataTypes.INTEGER,
+        },
+        id: {
+            type: DataTypes.INTEGER
+        },
         idEtat: {
             type: DataTypes.INTEGER,
             allowNull: false

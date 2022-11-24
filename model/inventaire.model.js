@@ -52,6 +52,10 @@ module.exports = (sequelize, DataTypes) =>{
         PRODUCT:{
             type: DataTypes.STRING
         }, 
+        etat:{
+            type: DataTypes.INTEGER,
+            defaultValue: 0
+        }
 
     },{timestamps: false,})
     return inventaire

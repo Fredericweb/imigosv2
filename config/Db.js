@@ -147,6 +147,10 @@ Db.updateFact.belongsTo(Db.facture, {
   foreignKey: 'idFact',
   as: 'updateFact'
 })
+// connection clé etrangère facture et user
+Db.users.hasMany(Db.facture,{
+  foreignKey: 'id'
+})
 
 // connection clé etrangère updateFact et user
 Db.users.hasMany(Db.updateFact,{

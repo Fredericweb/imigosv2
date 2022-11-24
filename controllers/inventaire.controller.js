@@ -1,83 +1,143 @@
 const Db = require('../config/Db')
 const { Op } = require("sequelize");
+const { facture } = require('../config/Db');
 
 const inv = Db.inventaire
 const filiale = Db.filiale
+const langue = Db.langue
+const part = Db.part
+const taxe = Db.taxe
+const typeFact = Db.typeFact
+const devise = Db.devise
+const update = Db.updateFact
+
+let idfiliale
+let idTypeFact
+let date
+let dateCrea
+let dateBrut
 
 
+// fonction de mois en toutes lettres
+const mois = (mois) => {
+    switch (mois) {
+        case 0: return 'Janvier'
+            break
+        case 1: return 'Fevrier'
+            break
+        case 2: return 'Mars'
+            break
+        case 3: return 'Avril'
+            break
+        case 4: return 'Mai'
+            break
+        case 5: return 'juin'
+            break
+        case 6: return 'Juillet'
+            break
+        case 7: return 'Aout'
+            break
+        case 8: return 'Septembre'
+            break
+        case 9: return 'Octobre'
+            break
+        case 10: return 'Novembre'
+            break
+        case 11: return 'Décembre'
+            break
+
+    }
+}
+const message = [] // retour de la facture
+const cp = ['IMI', 'OP CP']   //Verification du type de facture
 
 const all = async (req, res) => {
-    // recuperation de tous les nom de filiale dans une list
+
+    // recuperation de tous les nom et id de filiale 
     const allFiliale = await filiale.findAll({
-        attribues: ['libFiliale']
+        attribues: ['libFiliale', 'idFiliale']
     })
-    let list = []
+    // recuperation des differentes dates dans le table inventaire
+    const dateInv = await inv.findAll({
+        attributes: ['createdAt'],
+        group: ['createdAt'],
+        where: { etat: 0 }
+    })
 
-    // recuperation du nom de filiale sans le "ORANGE" au debut
-    for (const elt of allFiliale) {
-        filialeBrutName = elt.libFiliale.split(" ")
-        filialeBrutName.shift()
-        filialeName = filialeBrutName.join(" ")
-        list.push(filialeName)
-    }
     try {
-        const message = []
+        if (dateInv[0]) {
+            for (const i of allFiliale) {
+                dateCrea = dateInv[0].createdAt
+                dateBrut = dateCrea.split('-')
+                date = new Date()
+                date.setMonth(dateBrut[1] - 1)
+                date.setFullYear(dateBrut[0])
+                periode = mois(date.getMonth() - 1) + ' ' + date.getFullYear()
 
-        for (const i of list) {
-            // recuperation des differentes dates dans le table inventaire
-            const dateInv = await inv.findAll({
-                attributes: ['DATE'],
-                group: ['DATE'],
-            })
-
-            // somme des UNITPRICE en fonction de de la date, du pays, et du CP_REMARK
-            const cp = ['IMI', 'OP CP']
-            for (const f of dateInv) {
+                // somme des UNITPRICE en fonction de de la date, du pays,et du CP_REMARK
                 for (const e of cp) {
                     const sumUniprice = await inv.sum('UNITPRICE', {
                         where: {
                             [Op.and]: [
-                                { COUNTRY: i },
-                                { DATE: f.DATE },
-                                { CP_REMARKS: e }
+                                { COUNTRY: i.libFiliale },
+                                { createdAt: dateCrea },
+                                { CP_REMARKS: e },
+                                { etat: 0 }
                             ]
                         }
                     })
-                    service = e == 'IMI'?'Service CMS':'Service MIGRES'
-                    filialeBrut = "ORANGE "+i
+                    service = e == 'IMI' ? 'Service CMS' : 'Service MIGRES'
+                    console.log(sumUniprice)
+                    idfiliale = i.idFiliale
+                    filialeBrut = i.libFiliale
 
-                    if (sumUniprice != null) {
-                        message.push({ filiale: filialeBrut, UNITPRICE: [{ value: sumUniprice, Type: service, date: f.DATE,  }] })
+                    // recuperation de l'id Typefact
+                    const typeFactId = await typeFact.findAll({
+                        attributes: ['idTypeFact'],
+                        where: {
+                            libTypeFact: service
+                        }
+                    })
+                    idTypeFact = typeFactId[0].idTypeFact
+
+                    ref = `GOS-${service}-${periode}-${idfiliale}/${filialeBrut}`
+
+                    idEtat = 1
+                    montant = Math.round(sumUniprice)
+                    if(montant != null){
+                        const addFacture = await facture.create({
+                            periode: periode,
+                            idFiliale: idfiliale,
+                            idTypeFact: idTypeFact,
+                            montant: montant,
+                            ref: ref,
+                            idEtat: idEtat
+                        })
+                        message.push({ filiale: filialeBrut, periode: periode, typefact: idTypeFact, reference: ref, unitprice: sumUniprice, etat: idEtat })
                     }
+                
+                   
                 }
 
             }
-
-            // const allInv = await inv.findAll({
-            //     attribues: ['DATE', 'COUNTRY', 'UNIPRICE', 'CP_REMARKS'],
-            //     where: {
-            //         COUNTRY: i
-            //     }
-            // })
-
-            // compte le nombre d'element par pays
-            // let count = 0
-            // for (const elt of allInv) {
-            //     count += 1
-            // }
-
+            const updateInv = await inv.update(
+                {
+                    etat: 1
+                },
+                {
+                    where: { etat: 0 }
+                }
+            )
+            res.status(201).send(message)
+        } else {
+            res.status(201).send({ message: 'Toutes les données ont été chargées' })
         }
 
 
-
-
-        res.status(200).send(message)
     } catch (err) {
         res.status(201).send(err)
         console.log(err)
     }
-
-
 }
 
 module.exports = { all }

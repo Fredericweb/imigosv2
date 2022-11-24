@@ -34,13 +34,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             validate: {
-                args: true,
-                msg:'Le champs filiale ne doit pas être vide'
+                notEmpty: {
+                    args: true,
+                    msg: 'Le champs filiale ne doit pas être vide'
+                },
+
+                isInt: {
+                    args: true,
+                    msg: 'Idfiliale doit être un entier'
+                }
             },
-            isInt:{
-                args: true,
-                msg: 'Idfiliale doit être un entier'
-            }
+
         }
     })
     return taxe
