@@ -4,12 +4,7 @@ const { facture } = require('../config/Db');
 
 const inv = Db.inventaire
 const filiale = Db.filiale
-const langue = Db.langue
-const part = Db.part
-const taxe = Db.taxe
 const typeFact = Db.typeFact
-const devise = Db.devise
-const update = Db.updateFact
 
 let idfiliale
 let idTypeFact
@@ -104,7 +99,7 @@ const all = async (req, res) => {
 
                     idEtat = 1
                     montant = Math.round(sumUniprice)
-                    if(montant != null){
+                    if(montant != 0){
                         const addFacture = await facture.create({
                             periode: periode,
                             idFiliale: idfiliale,
