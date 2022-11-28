@@ -52,100 +52,82 @@ Db.sequelize.sync({ force: false })
 //  connection clé etrangère entre filiale et devise
 Db.role.hasMany(Db.users, {
   foreignKey: 'idRole',
-  as: 'users'
 })
 
 Db.users.belongsTo(Db.role, {
   foreignKey: 'idRole',
-  as: 'role'
 })
 
 
 //  connection clé etrangère entre filiale et langue
 Db.langue.hasMany(Db.filiale, {
   foreignKey: 'idLangue',
-  as: 'fililale'
 })
 
 Db.filiale.belongsTo(Db.langue, {
   foreignKey: 'idLangue',
-  as: 'langue'
 })
 
 
 //  connection clé etrangère entre filiale et devise
 Db.devise.hasMany(Db.filiale, {
   foreignKey: 'idDevise',
-  as: 'filiale'
 })
 
 Db.filiale.belongsTo(Db.devise, {
   foreignKey: 'idDevise',
-  as: 'devise'
 })
 //  connection clé etrangère entre part et filiale
 Db.filiale.hasMany(Db.part, {
   foreignKey: 'idFiliale',
-  as: 'filiale'
 })
 
 Db.part.belongsTo(Db.filiale, {
   foreignKey: 'idFiliale',
-  as: 'part1'
 })
 
 //  connection clé etrangère entre part et Typefact
 
 Db.typeFact.hasMany(Db.part, {
-  foreignKey: 'idTypeFact',
-  as: 'typefact'
+  foreignKey: 'idTypeFact'
 })
 
 Db.part.belongsTo(Db.typeFact, {
   foreignKey: 'idTypeFact',
-  as: 'part'
 })
 
 // connection clé etrangère entre Taxe et filiale
 
 Db.filiale.hasMany(Db.taxe, {
   foreignKey: 'idFiliale',
-  as: 'filiale2'
 })
 
 Db.taxe.belongsTo(Db.filiale, {
   foreignKey: 'idFiliale',
-  as: 'taxe'
 })
 
 // connection clé etrangère Filiale et facture
 Db.filiale.hasMany(Db.facture, {
   foreignKey: 'idFiliale',
-  as:'filiale3'
 })
 Db.facture.belongsTo(Db.filiale,{
   foreignKey: 'idFiliale',
-  as:'facture'
 })
 
 // connection clé etrangère typeFacture et facture
 Db.typeFact.hasMany(Db.facture, {
   foreignKey: 'idTypeFact',
-  as: 'typeFact2'
 })
 Db.facture.belongsTo(Db.typeFact,{
   foreignKey: 'idTypeFact',
-  as: 'facture2'
 })
 
 // connection clé etrangère updateFact et facture
 Db.facture.hasMany(Db.updateFact, {
   foreignKey: 'idFact',
-  as:'facture3'
 })
 Db.updateFact.belongsTo(Db.facture, {
   foreignKey: 'idFact',
-  as: 'updateFact'
 })
 // connection clé etrangère facture et user
 Db.users.hasMany(Db.facture,{
@@ -155,21 +137,17 @@ Db.users.hasMany(Db.facture,{
 // connection clé etrangère updateFact et user
 Db.users.hasMany(Db.updateFact,{
   foreignKey: 'id',
-  as: 'user2'
 })
 Db.updateFact.belongsTo(Db.users, {
   foreignKey : 'id',
-  as:'updateFact2'
 })
 
 // connection clé etrangère etat facture
 Db.etat.hasMany(Db.facture, {
   foreignKey: 'idEtat',
-  as: 'etat'
 })
 Db.facture.belongsTo(Db.etat,{
   foreignKey: 'idEtat',
-  as: 'facture4'
 })
 
 
