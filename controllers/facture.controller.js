@@ -39,7 +39,18 @@ const mois = (mois) => {
 }
 const date = new Date()
 periode = mois(date.getMonth() - 1) + ' ' + date.getFullYear()
-
+const byEtat = async (req, res) => {
+    try{
+        const getByEtat = await fact.findAll({
+            where: {idEtat: req.body.idEtat}
+        })
+        res.send(getByEtat)
+    }catch(err) {
+        res.send({message: "une erreur s'est produite", err: err})
+        console.log(err)
+    }
+    
+}
 const byDate = async (req, res) => {
 
     try {
@@ -205,4 +216,4 @@ const infoFact = async (req, res) =>{
 }
 
 
-module.exports = { byDate, update, updateEtat, infoFact }
+module.exports = { byDate, update, updateEtat, infoFact, byEtat }
