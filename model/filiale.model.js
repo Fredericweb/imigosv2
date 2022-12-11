@@ -57,7 +57,7 @@ module.exports = (sequelize, DataTypes) => {
                     msg: 'idlangue doit entre un entier'
                 }
             }
-        }
+        },
     })
     return filiale
 }

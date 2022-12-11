@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser')
 require('dotenv').config({ path: './config/.env' })
 const cors = require('cors')
 const port = process.env.PORT
+const cron = require('node-cron')
+const axios = require('axios')
 
 // routes import
 const userRoutes = require('./routes/user.routes');
@@ -31,6 +33,7 @@ const corsOptions = {
     'methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
     'preflightContinue': false
 }
+
 app.use(cors(corsOptions));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
@@ -55,6 +58,20 @@ app.use('/api/taxe', taxeRoutes)
 app.use('/api/inventaire', inventaireRoutes)
 app.use('/api/facture', factureRoutes)
 app.use('/api/etat', etatRoutes)
+
+// cron de lancement automatique 
+cron.schedule('* * 1 * *', () => {
+    axios({
+        method: 'get',
+        url: 'http://localhost:5000/api/inventaire',
+    }).then((res) => {
+        console.log(res.data)
+    }).catch((err)=>{
+        console.log(err)
+    })
+    
+});
+
 
 app.listen(port, () => {
     console.log(`Connecté au port ${port}`)

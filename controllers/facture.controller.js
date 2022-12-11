@@ -39,25 +39,27 @@ const mois = (mois) => {
 }
 const date = new Date()
 periode = mois(date.getMonth() - 1) + ' ' + date.getFullYear()
+
 const byEtat = async (req, res) => {
-    try{
+    try {
         const getByEtat = await fact.findAll({
-            where: {idEtat: req.body.idEtat}
+            include: { all: true },
+            where: { idEtat: req.body.idEtat }
         })
-        res.send(getByEtat)
-    }catch(err) {
-        res.send({message: "une erreur s'est produite", err: err})
+        res.status(200).send(getByEtat)
+    } catch (err) {
+        res.status(404).send({ message: "une erreur s'est produite", err: err })
         console.log(err)
     }
-    
+
 }
 const byDate = async (req, res) => {
 
     try {
         const allFact = await fact.findAll({ where: { periode: periode } })
-        res.send(allFact)
+        res.status(200).send(allFact)
     } catch (err) {
-        res.send(err)
+        res.status(404).send(err)
     }
 
 }
@@ -70,71 +72,73 @@ const update = async (req, res) => {
                 idEtat: 4
             },
             {
-                where: {idFact:req.params.idFact }
+                where: { idFact: req.params.idFact }
             }
         )
-        res.send(updateFact)
+        res.status(200).send(updateFact)
     } catch (err) {
-        res.send(err)
+        res.status(404).send(err)
     }
 }
-const updateEtat = async (req, res)=>{
-    try{
+const updateEtat = async (req, res) => {
+    try {
         const Etat = await fact.update(
             {
-                idEtat : req.body.idEtat
+                idEtat: req.body.idEtat
             },
             {
                 where: {
-                    idFact : req.params.id
+                    idFact: req.params.id
                 }
             }
-        ) 
-        res.send({message: 'modification éffectuée'})
-    }catch(err){
-        res.send({message: "Une erreur s'est produite"})
+        )
+        res.status(200).send({ message: 'modification éffectuée' })
+    } catch (err) {
+        res.status(404).send({ message: "Une erreur s'est produite" })
     }
-   
+
 }
-const infoFact = async (req, res) =>{
-    try{
+const infoFact = async (req, res) => {
+    try {
         const getFact = await fact.findAll({
-           include: {all: true},
-            where: {idFact: req.params.id}
+            include: { all: true },
+            where: { idFact: req.params.id }
         })
         // infos de la facture globale
-        const idFiliale  = getFact[0].idFiliale
+        const idFiliale = getFact[0].idFiliale
         const ref = getFact[0].ref
         const montant = getFact[0].montant
+        const montantIMI = getFact[0].montantIMI
         const newMontant = getFact[0].newMontant
         const periode = getFact[0].periode
         const libFiliale = getFact[0].filiale.libFiliale
+        const genre = getFact[0].filiale.idGenre
         const sigle = getFact[0].filiale.sigle
         const idTypeFact = getFact[0].idTypeFact
         const typeFact = getFact[0].typefact.libTypeFact
         const dateEmission = getFact[0].updateAt
-        console.log(libFiliale)
+        console.log(genre)
         // infos devise 
         const idDevise = getFact[0].filiale.idDevise
         const deviseFiliale = await devise.findAll({
             attribues: ['libDevise', 'value'],
-            where: {idDevise: idDevise}
+            where: { idDevise: idDevise }
         })
         const libDevise = deviseFiliale[0].libDevise
         const valueDevise = deviseFiliale[0].value
 
         // infos langue
         const idLangue = getFact[0].filiale.idLangue
-        const langueFiliale  = await langue.findAll({
+        const langueFiliale = await langue.findAll({
             attribues: ['libLangue'],
-            where: {idLangue: idLangue}
+            where: { idLangue: idLangue }
         })
         const libLangue = langueFiliale[0].libLangue
 
         // infos taxes
         const taxeFiliale = await taxe.findAll({
             attributes: ['libTaxe', 'value'],
-            where: {idFiliale: idFiliale}
+            where: { idFiliale: idFiliale }
         })
         const taxeValue = taxeFiliale[0].value
 
@@ -142,75 +146,225 @@ const infoFact = async (req, res) =>{
         const partFiliale = await part.findAll({
             where: {
                 [Op.and]: [
-                    {idFiliale: idFiliale},
-                    {idTypeFact: idTypeFact}
+                    { idFiliale: idFiliale },
+                    { idTypeFact: idTypeFact }
                 ]
             }
         })
         const partImi = partFiliale[0].partIMI
         const partGos = partFiliale[0].partGOS
         const partFil = partFiliale[0].partFiliale
+        const partOther = partFiliale[0].partOther
 
         // message de retour de facture 
-        const montantValue = (newMontant!=null?newMontant:montant)
-        const montantTTC = (montantValue*taxeValue)/100 + montantValue
-        const calcHt = (part)=>{
-            return (montantValue*part)/100
+        const montantTTC = (newMontant != null ? newMontant : montant)
+        const montantHT = montantTTC / (1 + (taxeValue / 100))
+        const HTmontant = (montant) => {
+            return Math.round(montant / (1 + (taxeValue / 100)))
         }
-        
-        const msg = {
-            identifiant : ref,
-            filiale: libFiliale,
-            typeFact: typeFact,
-            dateEmission: dateEmission,
-            periode: periode,
-            devise: libDevise,
-            euro: valueDevise,
-            Rcollecter: [
-                 {
-                    lib: "Chiffre d'affaire global validé",
-                    montant: montantValue,
-                    taxe: taxeValue,
-                    montantTTC: montantTTC,
-                    euroTTC: montantTTC * valueDevise
-                 },
-                 {
-                    lib:"Chiffre d'affaire des services IMI mobile" ,
-                    taxe: taxeValue,
-                 },
-                 {
-                    lib:"Chiffre d'affaire Orange Content " ,
-                    taxe: taxeValue,
-                 }
-            ],
-            RPartager: [
-                {
-                    lib: "Revenu share dû à IMI",
-                    montant: montantValue,
-                    part: partImi,
-                    montantHT: calcHt(partImi),
-                    euroTTC: calcHt(partImi) * valueDevise
-                 },
-                 {
-                    lib: "Revenu share dû à GOS",
-                    montant: montantValue,
-                    part: partGos,
-                    montantHT: calcHt(partGos),
-                    euroTTC: calcHt(partGos) * valueDevise
-                 },
-                 {
-                    lib: "Revenu share dû à I"+ libFiliale,
-                    montant: montantValue,
-                    part: partFil,
-                    montantHT: calcHt(partFil),
-                    euroTTC: calcHt(partFil) * valueDevise
-                 },
-            ]
+        const calcHt = (part, montant) => {
+            return Math.round((montant * part) / 100)
+        }
+        const montantOC = montantTTC - montantIMI
+        let msg = 0
+        if(genre == 2) {
+            msg = {  
+                factureCMS:{
+                    identifiant: ref,
+                    filiale: libFiliale,
+                    typeFact: "Service CMS",
+                    dateEmission: dateEmission,
+                    periode: periode,
+                    devise: libDevise,
+                    euro: valueDevise,
+                    Rcollecter: [
+                        {
+                            lib: "Chiffre d'affaire global validé",
+                            montantTTC: montantTTC,
+                            taxe: taxeValue,
+                            montantHT: Math.round(montantHT),
+                            euroTTC: Math.round(montantTTC * valueDevise)
+                        },
+                        {
+                            lib: "Chiffre d'affaire des services IMI mobile",
+                            montantTTC: montantIMI,
+                            montantHT: HTmontant(montantIMI),
+                            taxe: taxeValue,
+                            euroTTC: Math.round(montantIMI * valueDevise)
+                        },
+                        {
+                            lib: "Chiffre d'affaire Orange Content ",
+                            montantTTC: montantOC,
+                            taxe: taxeValue,
+                            montantHT: HTmontant(montantOC),
+                            euroTTC: Math.round(montantOC * valueDevise)
+                        }
+                    ],
+                    RPartager: [
+                        {
+                            lib: "Revenu share dû à IMI mobile",
+                            CAPartager: HTmontant(montantIMI),
+                            part: partImi,
+                            montantHT: calcHt(partImi, HTmontant(montantIMI)),
+                            euroTTC: calcHt(partImi, HTmontant(montantIMI)) * valueDevise
+                        },
+                        {
+                            lib: "Revenu share dû à GOS",
+                            CAPartagerHT: Math.round(HTmontant(montantIMI)),
+                            part: partGos,
+                            montantHT: calcHt(partGos, HTmontant(montantIMI)),
+                            euroHT: Math.round(calcHt(partGos, HTmontant(montantIMI)) * valueDevise)
+                        },
+                        {
+                            lib: "Mt total à reverser au GOS",
+                            CAPartagerHT: '',
+                            part: partGos,
+                            montantHT: calcHt(partImi, HTmontant(montantIMI)) + Math.round(calcHt(partGos, HTmontant(montantIMI))),
+                            euroHT: Math.round((calcHt(partGos, HTmontant(montantIMI)) * valueDevise )+ (calcHt(partImi, HTmontant(montantIMI)) * valueDevise)) 
+                        },
+                        {
+                            lib: "Revenu share dû à " + libFiliale,
+                            CAPartager: Math.round(montantIMI),
+                            part: partFil,
+                            montantHT: calcHt(partFil, HTmontant(montantIMI)) ,
+                            euroHT: calcHt(partFil, HTmontant(montantIMI)) * valueDevise
+                        },
+                    ]
+                },
+
+                factureMIGRES:{
+                    identifiant: ref,
+                    filiale: libFiliale,
+                    typeFact: "Service MIGRES",
+                    dateEmission: dateEmission,
+                    periode: periode,
+                    devise: libDevise,
+                    euro: valueDevise,
+                    Rcollecter: [
+                        {
+                            lib: "Chiffre d'affaire global validé",
+                            montantTTC: montantTTC,
+                            taxe: taxeValue,
+                            montantHT: Math.round(montantHT),
+                            euroTTC: Math.round(montantTTC * valueDevise)
+                        },
+                        {
+                            lib: "Chiffre d'affaire des services IMI mobile",
+                            montantTTC: montantIMI,
+                            montantHT: HTmontant(montantIMI),
+                            taxe: taxeValue,
+                            euroTTC: Math.round(montantIMI * valueDevise)
+                        },
+                        {
+                            lib: "Chiffre d'affaire Orange Content ",
+                            montantTTC: montantOC,
+                            taxe: taxeValue,
+                            montantHT: HTmontant(montantOC),
+                            euroTTC: Math.round(montantOC * valueDevise)
+                        }
+                    ],
+                    RPartager: [
+                        {
+                            lib: "Revenu share dû à IMI mobile",
+                            montant: montantOC,
+                            part: partImi,
+                            montantHT: calcHt(partImi, HTmontant(montantOC)),
+                            euroHT: calcHt(partImi, HTmontant(montantOC)) * valueDevise
+                        },
+                        {
+                            lib: "Revenu share dû à GOS",
+                            montant: Math.round(montantOC),
+                            part: partGos,
+                            montantHT: Math.round(HTmontant(montantOC)),
+                            euroHT: Math.round(calcHt(partGos, montantOC) * valueDevise)
+                        },
+                        {
+                            lib: "Mt total à reverser au GOS",
+                            montant: '',
+                            part: partGos,
+                            montantHT: calcHt(partImi, HTmontant(montantOC)) + Math.round(calcHt(partGos, montantOC)),
+                            euroHT: Math.round((calcHt(partGos, montantOC) * valueDevise )+ (calcHt(partImi, HTmontant(montantOC)) * valueDevise)) 
+                        },
+                        {
+                            lib: "Revenu share dû à " + libFiliale,
+                            montant: Math.round(montantOC),
+                            part: partFil,
+                            montantHT: calcHt(partFil, HTmontant(montantOC)) ,
+                            euroHT: calcHt(partFil, HTmontant(montantOC)) * valueDevise
+                        },
+                    ]
+                }
+             
+            }
+        }else{
+            msg = {
+                identifiant: ref,
+                filiale: libFiliale,
+                typeFact: typeFact,
+                dateEmission: dateEmission,
+                periode: periode,
+                devise: libDevise,
+                euro: valueDevise,
+                Rcollecter: [
+                    {
+                        lib: "Chiffre d'affaire global validé",
+                        montantTTC: montantTTC,
+                        taxe: taxeValue,
+                        montantHT: Math.round(montantHT),
+                        euroTTC: Math.round(montantTTC * valueDevise)
+                    },
+                    {
+                        lib: "Chiffre d'affaire des services IMI mobile",
+                        montantTTC: montantIMI,
+                        montantHT: HTmontant(montantIMI),
+                        taxe: taxeValue,
+                        euroTTC: Math.round(montantIMI * valueDevise)
+                    },
+                    {
+                        lib: "Chiffre d'affaire Orange Content ",
+                        montantTTC: montantOC,
+                        taxe: taxeValue,
+                        montantHT: HTmontant(montantOC),
+                        euroTTC: Math.round(montantOC * valueDevise)
+                    }
+                ],
+                RPartager: [
+                    {
+                        lib: "Revenu share dû à IMI mobile",
+                        montant: montantIMI,
+                        part: partImi,
+                        montantHT: calcHt(partImi, HTmontant(montantIMI)),
+                        euroTTC: calcHt(partImi, HTmontant(montantIMI)) * valueDevise
+                    },
+                    {
+                        lib: "Revenu share dû à IMI autres servies",
+                        montant: montantOC,
+                        part: partOther,
+                        montantHT: calcHt(partOther, HTmontant(montantOC)),
+                        euroHT: calcHt(partOther, HTmontant(montantOC)) * valueDevise
+                    },
+                    {
+                        lib: "Revenu share dû à GOS",
+                        montant: Math.round(montantHT),
+                        part: partGos,
+                        montantHT: Math.round(calcHt(partGos, montantHT)),
+                        euroHT: Math.round(calcHt(partGos, montantHT) * valueDevise)
+                    },
+                    {
+                        lib: "Revenu share dû à " + libFiliale,
+                        montant: Math.round(montantHT),
+                        part: partFil,
+                        montantHT: calcHt(partFil, HTmontant(montantHT)),
+                        euroHT: calcHt(partFil, HTmontant(montantHT)) * valueDevise
+                    },
+                ]
+            }
         }
 
-        res.send(msg)
-    }catch(err){
-        res.send({message: "une erreur s'est produite !!!"})
+
+        res.status(200).send(msg)
+    } catch (err) {
+        res.status(404).send({ message: "une erreur s'est produite !!!" })
         console.log(err)
     }
 }

@@ -24,6 +24,9 @@ module.exports = (sequelize, DataTypes) => {
         montant:{
             type: DataTypes.INTEGER,
         },
+        montantIMI:{
+            type: DataTypes.INTEGER,
+        },
         newMontant: {
             type: DataTypes.INTEGER,
         },

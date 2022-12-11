@@ -39,6 +39,7 @@ Db.inventaire = require('../model/inventaire.model')(sequelize, DataTypes);
 Db.facture = require('../model/facture.model')(sequelize, DataTypes);
 Db.updateFact = require('../model/updateFact.model')(sequelize, DataTypes);
 Db.etat = require('../model/etatFact.model')(sequelize, DataTypes);
+Db.genre = require('../model/genreFact.model')(sequelize, DataTypes)
 
 Db.sequelize.sync({ force: false })
   .then(() => {
@@ -149,8 +150,13 @@ Db.etat.hasMany(Db.facture, {
 Db.facture.belongsTo(Db.etat,{
   foreignKey: 'idEtat',
 })
-
-
+// connection clé etrangère genreFact et filiale
+Db.genre.hasMany(Db.filiale, {
+  foreignKey: 'idGenre',
+})
+Db.filiale.belongsTo(Db.genre,{
+  foreignKey: 'idGenre',
+})
 
 
 module.exports = Db

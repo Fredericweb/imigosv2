@@ -29,6 +29,20 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        partOther: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            validate: {
+                notEmpty: {
+                    args: true,
+                    msg: 'Le champs pourcentage IMI ne doit pas être vide'
+                },
+                isFloat: {
+                    args: true,
+                    msg: 'pourcentage IMI doit être un nombre'
+                }
+            }
+        },
         partGOS: {
             type: DataTypes.FLOAT,
             allowNull: false,
